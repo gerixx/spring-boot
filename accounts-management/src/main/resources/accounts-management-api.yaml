@@ -13,8 +13,7 @@ externalDocs:
   description: Find out more about Smarter Ecommerce.
   url: https://smarter-ecommerce.com/de/
 servers:
-- url: https://TBD/v1
-- url: http://TBD/v1
+- url: http://localhost:8080/v1
 tags:
 - name: account
   description: Account details
@@ -33,9 +32,6 @@ paths:
         description: Account object that needs to be updated
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Account'
-          application/xml:
             schema:
               $ref: '#/components/schemas/Account'
         required: true
@@ -92,9 +88,6 @@ paths:
         200:
           description: success
           content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Account'
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
@@ -120,9 +113,6 @@ paths:
         200:
           description: successful operation
           content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Account'
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
@@ -267,8 +257,6 @@ components:
         creationDate:
           type: string
           format: date-time
-      xml:
-        name: Account
     Event:
       type: object
       properties:
@@ -278,5 +266,3 @@ components:
           description: Timestamp in milliseconds as defined by java.lang.System.currentTimeMillis()
           type: integer
           format: int64
-      xml:
-        name: Category
