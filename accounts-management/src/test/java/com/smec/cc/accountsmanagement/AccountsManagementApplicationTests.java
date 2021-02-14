@@ -24,15 +24,28 @@ class AccountsManagementApplicationTests {
     void createAccount() {
         // when
         Account accountPrototype = new Account().name("Account-1");
-        Account newAccount = api.addAccount(accountPrototype).getBody();
+        Account newAccount = api.addAccount(accountPrototype)
+                                .getBody();
 
         // then
         assertTrue(newAccount.getId() > 0);
         assertEquals("Account-1", newAccount.getName());
 
-        Account newAccountById = api.getAccountById(newAccount.getId()).getBody();
+        Account newAccountById = api.getAccountById(newAccount.getId())
+                                    .getBody();
         assertEquals(newAccount.getId(), newAccountById.getId());
         assertEquals(newAccount.getName(), newAccountById.getName());
+    }
+
+    @Test
+    void createAccount_NameAlreadyExistsError() {
+        Account existingAccount = api.addAccount(new Account().name("Account-8"))
+                                     .getBody();
+        // when
+        ResponseEntity<Account> addAccountResponse = api.addAccount(new Account().name(existingAccount.getName()));
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, addAccountResponse.getStatusCode());
     }
 
     @Test
@@ -59,7 +72,8 @@ class AccountsManagementApplicationTests {
     void deleteAccount() {
         ResponseEntity<Account> newAccountResponse = api.addAccount(new Account().name("Account-3"));
         Account newAccount = newAccountResponse.getBody();
-        Account accountById = api.getAccountById(newAccount.getId()).getBody();
+        Account accountById = api.getAccountById(newAccount.getId())
+                                 .getBody();
 
         // when
         ResponseEntity<Void> deleteAccountResponse = api.deleteAccount(accountById.getId());
@@ -78,8 +92,10 @@ class AccountsManagementApplicationTests {
 
     @Test
     void updateAccount() {
-        Account newAccount = api.addAccount(new Account().name("Account-4")).getBody();
-        Account accountById = api.getAccountById(newAccount.getId()).getBody();
+        Account newAccount = api.addAccount(new Account().name("Account-4"))
+                                .getBody();
+        Account accountById = api.getAccountById(newAccount.getId())
+                                 .getBody();
 
         // when
         accountById.setName("Account-4-CHANGED");
@@ -87,8 +103,31 @@ class AccountsManagementApplicationTests {
 
         // then
         assertEquals(HttpStatus.OK, updateAccountResponse.getStatusCode());
-        Account updatedAccountById = api.getAccountById(accountById.getId()).getBody();
+        Account updatedAccountById = api.getAccountById(accountById.getId())
+                                        .getBody();
         assertEquals(accountById.getId(), updatedAccountById.getId());
         assertEquals(accountById.getName(), updatedAccountById.getName());
+    }
+
+    @Test
+    void updateAccount_NotFoundError() {
+        Account account = new Account().name("Account-5");
+        ResponseEntity<Void> updateAccountResponse = api.updateAccount(account);
+        assertEquals(HttpStatus.NOT_FOUND, updateAccountResponse.getStatusCode());
+    }
+
+    @Test
+    void updateAccount_NameAlreadyExistsError() {
+        Account existingAccount = api.addAccount(new Account().name("Account-6"))
+                                     .getBody();
+        Account updatingAccount = api.addAccount(new Account().name("Account-7"))
+                                     .getBody();
+        // when
+        Account changedAccount = new Account().id(updatingAccount.getId())
+                                              .name(existingAccount.getName());
+        ResponseEntity<Void> updateAccountResponse = api.updateAccount(changedAccount);
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, updateAccountResponse.getStatusCode());
     }
 }

@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AccountApiDelegateImpl implements AccountApiDelegate {
@@ -20,6 +17,7 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
     }
 
     private static Map<Long, Account> dbAccounts = Collections.synchronizedMap(new HashMap<>());
+    private static Set<String> dbAccountNames = Collections.synchronizedSet(new HashSet<>());
 
     // use for creation an Account prototype object,
     // in the case Accounts are getting more complex in the future
@@ -31,9 +29,12 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
         long accountId = System.currentTimeMillis();
         newAccount.id(accountId)
                   .creationDate(OffsetDateTime.now());
-        dbAccounts.put(accountId, newAccount);
-
-        return ResponseEntity.ok(newAccount);
+        if (!dbAccountNames.add(newAccount.getName())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            dbAccounts.put(accountId, newAccount);
+            return ResponseEntity.ok(newAccount);
+        }
     }
 
     @Override
@@ -41,8 +42,7 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
         Account removedAccount = dbAccounts.remove(accountId);
         if (removedAccount == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else {
+        } else {
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -55,10 +55,9 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
     @Override
     public ResponseEntity<Account> getAccountById(Long accountId) {
         Account account = dbAccounts.get(accountId);
-        if(account == null) {
+        if (account == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else {
+        } else {
             return ResponseEntity.ok(account);
         }
     }
@@ -67,10 +66,11 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
     public ResponseEntity<Void> updateAccount(Account account) {
         // TODO synchronize
         Account accountOld = dbAccounts.get(account.getId());
-        if(accountOld == null) {
+        if (accountOld == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else {
+        } else if (!dbAccountNames.add(account.getName())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
             assert accountOld.getId() == account.getId();
             dbAccounts.put(account.getId(), account);
             return new ResponseEntity<>(HttpStatus.OK);
