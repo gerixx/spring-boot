@@ -54,12 +54,11 @@ class AccountsManagementApplicationTests {
         Account newAccount = newAccountResponse.getBody();
 
         // when
-        ResponseEntity<Account> accountByIdResponse = api.getAccountById(newAccount.getId());
+        Account accountById = api.getAccountById(newAccount.getId()).getBody();
 
         // then
-        assertNotNull(accountByIdResponse);
-        assertEquals(newAccount.getId(), accountByIdResponse.getBody()
-                                                            .getId());
+        assertNotNull(accountById);
+        assertEquals(newAccount.getId(), accountById.getId());
     }
 
     @Test
@@ -109,10 +108,23 @@ class AccountsManagementApplicationTests {
         assertEquals(accountById.getName(), updatedAccountById.getName());
     }
 
+
     @Test
-    void updateAccount_NotFoundError() {
+    void updateAccount_InvalidId() {
         Account account = new Account().name("Account-5");
         ResponseEntity<Void> updateAccountResponse = api.updateAccount(account);
+        assertEquals(HttpStatus.BAD_REQUEST, updateAccountResponse.getStatusCode());
+    }
+
+    @Test
+    void updateAccount_NotFoundError() {
+        Account account = api.addAccount(new Account().name("Account-5"))
+                             .getBody();
+        // when
+        account.setId(Long.MAX_VALUE);
+        ResponseEntity<Void> updateAccountResponse = api.updateAccount(account);
+
+        // then
         assertEquals(HttpStatus.NOT_FOUND, updateAccountResponse.getStatusCode());
     }
 
@@ -129,5 +141,28 @@ class AccountsManagementApplicationTests {
 
         // then
         assertEquals(HttpStatus.BAD_REQUEST, updateAccountResponse.getStatusCode());
+    }
+
+    @Test
+    void findAccountByName() {
+        Account account = api.addAccount(new Account().name("Account-9"))
+                                     .getBody();
+        // when
+        Account accountByName = api.findAccountByName(account.getName()).getBody();
+
+        // then
+        assertNotNull(accountByName);
+        assertEquals(account.getId(), accountByName.getId());
+    }
+
+    @Test
+    void findAccountByName_NotFound() {
+        Account account = (new Account().name("Account-NOT-EXISTING"));
+
+        // when
+        ResponseEntity<Account> accountByNameResponse = api.findAccountByName(account.getName());
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, accountByNameResponse.getStatusCode());
     }
 }
