@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DateTimeUtilTest {
 
     @Test
-    public void toBeginDay() throws ParseException {
+    public void toDayBeginUTC() throws ParseException {
         Date dateTime = DateTimeUtil.dformatExact.parse("2021-02-17T14:51:15.022+0000");
         Date dayExpected = DateTimeUtil.dformatExact.parse("2021-02-17T00:00:00.000+0000");
 

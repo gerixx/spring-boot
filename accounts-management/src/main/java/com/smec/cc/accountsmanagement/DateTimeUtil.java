@@ -16,8 +16,7 @@ public class DateTimeUtil {
     public static final long millisOfDay = 24 * 60 * 60 * 1000;
 
     public static long toDayBeginUTC(Long timestamp) {
-        long l = millisOfDay * (timestamp / millisOfDay);
-        return l;
+        return millisOfDay * (timestamp / millisOfDay);
     }
 
     public static Date parseDateFrom(String dateTime) throws ParseException {
