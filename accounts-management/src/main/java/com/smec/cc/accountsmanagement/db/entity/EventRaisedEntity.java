@@ -1,6 +1,7 @@
 package com.smec.cc.accountsmanagement.db.entity;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class EventRaisedEntity {
@@ -27,4 +28,12 @@ public class EventRaisedEntity {
 
     @Column(nullable = false)
     private Long timestamp;
+
+    public String getDateTime() {
+        return new Date(timestamp).toString();
+    }
+
+    public String getType() {
+        return type;
+    }
 }

@@ -1,6 +1,7 @@
 package com.smec.cc.accountsmanagement.api;
 
 import com.smec.cc.accountsmanagement.db.entity.*;
+import com.smec.cc.accountsmanagement.model.Account;
 import com.smec.cc.accountsmanagement.model.Event;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
@@ -22,7 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-@Transactional
 public class EventApiDelegateImpl implements EventApiDelegate {
     Logger logger = LoggerFactory.getLogger(EventApiDelegateImpl.class);
 
@@ -108,10 +108,53 @@ public class EventApiDelegateImpl implements EventApiDelegate {
         return eventStatisticsEntityResult;
     }
 
+    @Transactional
     @Override
     public ResponseEntity<Void> createEventsForAccountName(String accountName,
-                                                           List<Event> body) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+                                                           List<Event> eventList) {
+        try {
+            Example<AccountEntity> example = Example.of(new AccountEntity(accountName));
+            Optional<AccountEntity> accountEntityByNameOpt = accountEntityRepository.findOne(example);
+            if (accountEntityByNameOpt.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                return createEventsForAccountId(accountEntityByNameOpt.get()
+                                                                      .getId(), eventList);
+            }
+        } catch (Exception e) {
+            return raiseInternalError(e);
+        }
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<String> getEventsForAccountName(String accountName) {
+        try {
+            Example<AccountEntity> example = Example.of(new AccountEntity(accountName));
+            Optional<AccountEntity> accountEntityByNameOpt = accountEntityRepository.findOne(example);
+            if (accountEntityByNameOpt.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                AccountEntity accountEntity = accountEntityByNameOpt.get();
+                List<EventRaisedEntity> raisedEvents = accountEntity.getRaisedEvents();
+                StringBuffer resultBody = new StringBuffer();
+                resultBody.append("date, type");
+                if (raisedEvents != null && !raisedEvents.isEmpty()) {
+                    for (EventRaisedEntity raisedEvent : raisedEvents) {
+                        resultBody.append('\n')
+                                  .append(raisedEvent.getDateTime())
+                                  .append(", ")
+                                  .append(raisedEvent.getType());
+                    }
+                } else {
+                    resultBody.append("\nno event entries found for account: ")
+                              .append(accountEntity.getName());
+                }
+                return ResponseEntity.ok(resultBody.toString());
+            }
+        } catch (Exception e) {
+            return raiseInternalError(e);
+        }
     }
 
     private ResponseEntity raiseInternalError(Exception e) {

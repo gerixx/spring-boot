@@ -52,7 +52,7 @@ public class StatisticsApiDelegateImpl implements StatisticsApiDelegate {
                                   .append(eventStatistic.getCountVal());
                     }
                 } else {
-                    resultBody.append("\nno entries found for account: ").append(accountEntity.getName());
+                    resultBody.append("\nno statistic entries found for account: ").append(accountEntity.getName());
                 }
                 return ResponseEntity.ok(resultBody.toString());
             }

@@ -74,4 +74,8 @@ public class AccountEntity {
     public String getName() {
         return name;
     }
+
+    public List<EventRaisedEntity> getRaisedEvents() {
+        return eventsRaised;
+    }
 }

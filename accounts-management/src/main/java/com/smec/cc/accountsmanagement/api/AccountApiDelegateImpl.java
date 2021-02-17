@@ -65,8 +65,6 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
     @Override
     public ResponseEntity<Account> findAccountByName(String name) {
         try {
-            JdbcUtil.showTables(dataSource, logger);
-
             Example<AccountEntity> example = Example.of(new AccountEntity(name));
             Optional<AccountEntity> accountEntityByName = accountEntityRepository.findOne(example);
             if (accountEntityByName.isEmpty()) {
