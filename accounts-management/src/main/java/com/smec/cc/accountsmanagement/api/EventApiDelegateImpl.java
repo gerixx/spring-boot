@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -145,7 +146,7 @@ public class EventApiDelegateImpl implements EventApiDelegate {
                 if (raisedEvents != null && !raisedEvents.isEmpty()) {
                     for (EventRaisedEntity raisedEvent : raisedEvents) {
                         resultBody.append('\n')
-                                  .append(raisedEvent.getDateTime())
+                                  .append(DateTimeUtil.dformatExact.format(new Date(raisedEvent.getTimestamp())))
                                   .append(", ")
                                   .append(raisedEvent.getType());
                     }

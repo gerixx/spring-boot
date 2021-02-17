@@ -1,6 +1,9 @@
 package com.smec.cc.accountsmanagement.db.entity;
 
+import com.smec.cc.accountsmanagement.DateTimeUtil;
+
 import javax.persistence.*;
+import java.time.DateTimeException;
 import java.util.Date;
 
 @Entity
@@ -29,8 +32,8 @@ public class EventRaisedEntity {
     @Column(nullable = false)
     private Long timestamp;
 
-    public String getDateTime() {
-        return new Date(timestamp).toString();
+    public Long getTimestamp() {
+        return timestamp;
     }
 
     public String getType() {

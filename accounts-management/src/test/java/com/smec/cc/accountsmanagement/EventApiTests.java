@@ -137,8 +137,8 @@ public class EventApiTests {
         System.out.println(eventsText);
         System.out.println("====================================================");
         assertNotNull(eventsText);
-        assertTrue(eventsText.contains(new Date(oneDay).toString() + ", EventType-1"));
-        assertTrue(eventsText.contains(new Date(oneDay).toString() + ", EventType-2"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(new Date(oneDay)) + ", EventType-1"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(new Date(oneDay)) + ", EventType-2"));
     }
 
     @Test
