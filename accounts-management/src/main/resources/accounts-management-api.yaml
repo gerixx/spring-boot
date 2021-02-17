@@ -165,7 +165,7 @@ paths:
       requestBody:
         description: List of account events
         content:
-          '*/*':
+          application/json:
             schema:
               type: array
               items:
@@ -202,7 +202,7 @@ paths:
       requestBody:
         description: List of account events
         content:
-          '*/*':
+          application/json:
             schema:
               type: array
               items:
@@ -294,9 +294,6 @@ components:
           format: int64
         name:
           type: string
-        creationDate:
-          type: string
-          format: date-time
     Event:
       type: object
       properties:
