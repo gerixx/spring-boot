@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,9 +30,6 @@ public class EventApiDelegateImpl implements EventApiDelegate {
 
     @Autowired
     private AccountEntityRepository accountEntityRepository;
-
-    @Autowired
-    private DataSource dataSource;
 
     @Autowired
     private EntityManager entityManager;

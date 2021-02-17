@@ -6,12 +6,14 @@ import com.smec.cc.accountsmanagement.api.StatisticsApiController;
 import com.smec.cc.accountsmanagement.api.StatisticsApiDelegate;
 import com.smec.cc.accountsmanagement.model.Account;
 import com.smec.cc.accountsmanagement.model.Event;
+import com.smec.cc.accountsmanagement.schedule.ScheduledTasks;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import javax.persistence.EntityManager;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
@@ -164,5 +166,64 @@ public class EventApiTests {
         System.out.println("====================================================");
         assertTrue(statisticsText.contains("EventType-1, 1"));
         assertTrue(statisticsText.contains("EventType-2, 1"));
+    }
+
+    @Autowired
+    private ScheduledTasks scheduledTasks;
+
+    @Test
+    public void deleteOutagedEvents() {
+        Account account = apiAccounts.addAccount(new Account().name("EventsTest-Account-5"))
+                                     .getBody();
+        long now = System.currentTimeMillis();
+        Date timeStamp1 = new Date(now);
+        Date timeStamp2 = new Date(now - DateTimeUtil.millisOfDay);
+        Date timeStamp3 = new Date(now - 2 * DateTimeUtil.millisOfDay);
+        Date timeStamp4 = new Date(now - 30 * DateTimeUtil.millisOfDay);
+        Date timeStamp5 = new Date(now - 31 * DateTimeUtil.millisOfDay);
+
+        List<Event> evenList = Arrays.asList(
+                new Event().type("EventType-1")
+                           .timestamp(timeStamp1.getTime()),
+                new Event().type("EventType-2")
+                           .timestamp(timeStamp2.getTime()),
+                new Event().type("EventType-3")
+                           .timestamp(timeStamp3.getTime()),
+                new Event().type("EventType-4")
+                           .timestamp(timeStamp4.getTime()),
+                new Event().type("EventType-5")
+                           .timestamp(timeStamp5.getTime())
+        );
+        assertEquals(HttpStatus.OK, apiEvents.createEventsForAccountId(account.getId(), evenList)
+                                             .getStatusCode());
+        ResponseEntity<String> eventsResponse = apiEvents.getEventsForAccountName(account.getName());
+        assertEquals(HttpStatus.OK, eventsResponse.getStatusCode());
+        String eventsText = eventsResponse.getBody();
+        System.out.println("====================================================");
+        System.out.println(eventsText);
+        System.out.println("====================================================");
+        assertNotNull(eventsText);
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp1) + ", EventType-1"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp2) + ", EventType-2"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp3) + ", EventType-3"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp4) + ", EventType-4"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp5) + ", EventType-5"));
+
+        // when
+        scheduledTasks.deleteOutagedEvents();
+
+        // then
+        eventsResponse = apiEvents.getEventsForAccountName(account.getName());
+        assertEquals(HttpStatus.OK, eventsResponse.getStatusCode());
+        eventsText = eventsResponse.getBody();
+        System.out.println("====================================================");
+        System.out.println(eventsText);
+        System.out.println("====================================================");
+        assertNotNull(eventsText);
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp1) + ", EventType-1"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp2) + ", EventType-2"));
+        assertTrue(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp3) + ", EventType-3"));
+        assertFalse(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp4) + ", EventType-4"));
+        assertFalse(eventsText.contains(DateTimeUtil.dformatExact.format(timeStamp5) + ", EventType-5"));
     }
 }

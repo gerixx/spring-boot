@@ -2,7 +2,6 @@ package com.smec.cc.accountsmanagement.api;
 
 import com.smec.cc.accountsmanagement.db.entity.AccountEntity;
 import com.smec.cc.accountsmanagement.db.entity.AccountEntityRepository;
-import com.smec.cc.accountsmanagement.db.entity.JdbcUtil;
 import com.smec.cc.accountsmanagement.model.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.sql.DataSource;
-import javax.validation.ConstraintViolationException;
-import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Optional;
 
 @Service
 public class AccountApiDelegateImpl implements AccountApiDelegate {
@@ -26,9 +23,6 @@ public class AccountApiDelegateImpl implements AccountApiDelegate {
 
     @Autowired
     private AccountEntityRepository accountEntityRepository;
-
-    @Autowired
-    private DataSource dataSource;
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
