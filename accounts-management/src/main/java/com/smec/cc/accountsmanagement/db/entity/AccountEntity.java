@@ -3,7 +3,9 @@ package com.smec.cc.accountsmanagement.db.entity;
 import com.smec.cc.accountsmanagement.model.Account;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Table(indexes = {@Index(name = "IDX_ACCOUNT_NAME", columnList = "name")})
 @Entity
@@ -30,7 +32,7 @@ public class AccountEntity {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<EventStatisticsEntity> eventStatistics;
+    private Set<EventStatisticsEntity> eventStatistics = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EventRaisedEntity> eventsRaised;
@@ -52,12 +54,17 @@ public class AccountEntity {
         this.name = account.getName();
     }
 
-    public List<EventStatisticsEntity> getEventStatistics() {
+    public Set<EventStatisticsEntity> getEventStatistics() {
         return eventStatistics;
     }
 
     public void addEventStatistics(EventStatisticsEntity eventStatisticsProbe) {
-        eventStatistics.add(eventStatisticsProbe);
+        if(!eventStatistics.add(eventStatisticsProbe)) {
+            // needed to ensure count is updated
+            eventStatistics.remove(eventStatisticsProbe);
+            boolean added = eventStatistics.add(eventStatisticsProbe);
+            assert added;
+        }
     }
 
     public void addEventRaised(EventRaisedEntity eventRaisedProbe) {

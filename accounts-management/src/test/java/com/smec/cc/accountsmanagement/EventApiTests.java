@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EventApiTests {
@@ -52,9 +53,12 @@ public class EventApiTests {
         // then
         assertEquals(HttpStatus.OK, createEventsResponse.getStatusCode());
         ResponseEntity<String> statisticsResponse = apiStatistics.getStatistics(account.getName());
+        String statisticsText = statisticsResponse.getBody();
         System.out.println("====================================================");
-        System.out.println(statisticsResponse.getBody());
+        System.out.println(statisticsText);
         System.out.println("====================================================");
+        assertTrue(statisticsText.contains("EventType-1, 1"));
+        assertTrue(statisticsText.contains("EventType-2, 1"));
     }
 
     @Test
@@ -65,7 +69,8 @@ public class EventApiTests {
                 new Event().type("EventType-1")
                            .timestamp(System.currentTimeMillis()),
                 new Event().type("EventType-2")
-                           .timestamp(System.currentTimeMillis()));
+                           .timestamp(System.currentTimeMillis())
+        );
         assertEquals(HttpStatus.OK, apiEvents.createEventsForAccountId(account.getId(), evenList)
                                              .getStatusCode());
 
@@ -74,9 +79,18 @@ public class EventApiTests {
                 new Event().type("EventType-1")
                            .timestamp(System.currentTimeMillis()),
                 new Event().type("EventType-2")
-                           .timestamp(System.currentTimeMillis()));
+                           .timestamp(System.currentTimeMillis())
+        );
+
+        // then
         assertEquals(HttpStatus.OK, apiEvents.createEventsForAccountId(account.getId(), evenList)
                                              .getStatusCode());
-
+        ResponseEntity<String> statisticsResponse = apiStatistics.getStatistics(account.getName());
+        String statisticsText = statisticsResponse.getBody();
+        System.out.println("====================================================");
+        System.out.println(statisticsText);
+        System.out.println("====================================================");
+        assertTrue(statisticsText.contains("EventType-1, 2"));
+        assertTrue(statisticsText.contains("EventType-2, 2"));
     }
 }

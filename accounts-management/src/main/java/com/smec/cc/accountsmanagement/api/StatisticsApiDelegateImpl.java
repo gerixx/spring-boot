@@ -15,6 +15,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class StatisticsApiDelegateImpl implements StatisticsApiDelegate {
@@ -39,7 +40,7 @@ public class StatisticsApiDelegateImpl implements StatisticsApiDelegate {
             } else {
                 StringBuffer resultBody = new StringBuffer();
                 AccountEntity accountEntity = accountEntityOpt.get();
-                List<EventStatisticsEntity> eventStatistics = accountEntity.getEventStatistics();
+                Set<EventStatisticsEntity> eventStatistics = accountEntity.getEventStatistics();
                 resultBody.append("day, type, count");
                 if (eventStatistics != null && !eventStatistics.isEmpty()) {
                     for (EventStatisticsEntity eventStatistic : eventStatistics) {
