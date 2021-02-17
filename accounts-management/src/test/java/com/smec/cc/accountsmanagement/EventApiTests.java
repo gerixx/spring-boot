@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -31,23 +32,28 @@ public class EventApiTests {
     private StatisticsApiDelegate apiStatistics;
 
     @Test
-    public void createNewEventsForAccountId() {
+    public void createNewEventsForAccountId() throws ParseException {
         Account account = apiAccounts.addAccount(new Account().name("EventsTest-Account-1"))
                                      .getBody();
+        Date timeStamp1 = DateTimeUtil.parseDateFrom("2021-02-17T14:51:15.022+0000");
+        Date timeStamp2 = DateTimeUtil.parseDateFrom("2021-02-17T14:56:15.099+0000");
+        Date timeStamp3 = DateTimeUtil.parseDateFrom("2021-02-18T14:57:15.099+0000");
+        Date timeStamp4 = DateTimeUtil.parseDateFrom("2021-02-18T14:58:15.099+0000");
+
         //when
         List<Event> evenList = Arrays.asList(
                 new Event().type("EventType-1")
-                           .timestamp(System.currentTimeMillis()),
+                           .timestamp(timeStamp1.getTime()),
                 new Event().type("EventType-2")
-                           .timestamp(System.currentTimeMillis())
+                           .timestamp(timeStamp2.getTime())
         );
         ResponseEntity<Void> createEventsResponse = apiEvents.createEventsForAccountId(account.getId(), evenList);
 
         evenList = Arrays.asList(
                 new Event().type("EventType-3")
-                           .timestamp(System.currentTimeMillis()),
+                           .timestamp(timeStamp3.getTime()),
                 new Event().type("EventType-4")
-                           .timestamp(System.currentTimeMillis()));
+                           .timestamp(timeStamp4.getTime()));
         createEventsResponse = apiEvents.createEventsForAccountId(account.getId(), evenList);
 
         // then
@@ -57,25 +63,30 @@ public class EventApiTests {
         System.out.println("====================================================");
         System.out.println(statisticsText);
         System.out.println("====================================================");
-        assertTrue(statisticsText.contains("EventType-1, 1"));
-        assertTrue(statisticsText.contains("EventType-2, 1"));
-        assertTrue(statisticsText.contains("EventType-3, 1"));
-        assertTrue(statisticsText.contains("EventType-4, 1"));
+        assertTrue(statisticsText.contains("2021-02-17, EventType-1, 1"));
+        assertTrue(statisticsText.contains("2021-02-17, EventType-2, 1"));
+        assertTrue(statisticsText.contains("2021-02-18, EventType-3, 1"));
+        assertTrue(statisticsText.contains("2021-02-18, EventType-4, 1"));
     }
 
     @Test
-    public void createKnownEventsForAccountId() {
+    public void createKnownEventsForAccountId() throws ParseException {
         Account account = apiAccounts.addAccount(new Account().name("EventsTest-Account-2"))
                                      .getBody();
+        Date timeStamp1 = DateTimeUtil.parseDateFrom("2021-02-17T14:51:15.022+0000");
+        Date timeStamp2 = DateTimeUtil.parseDateFrom("2021-02-17T14:56:15.099+0000");
+        Date timeStamp3 = DateTimeUtil.parseDateFrom("2021-02-18T14:57:15.099+0000");
+        Date timeStamp4 = DateTimeUtil.parseDateFrom("2021-02-18T14:58:15.099+0000");
+
         List<Event> evenList = Arrays.asList(
                 new Event().type("EventType-1")
-                           .timestamp(System.currentTimeMillis()),
+                           .timestamp(timeStamp1.getTime()),
                 new Event().type("EventType-2")
-                           .timestamp(System.currentTimeMillis()),
+                           .timestamp(timeStamp2.getTime()),
                 new Event().type("EventType-3")
-                           .timestamp(System.currentTimeMillis()),
+                           .timestamp(timeStamp3.getTime()),
                 new Event().type("EventType-4")
-                           .timestamp(System.currentTimeMillis())
+                           .timestamp(timeStamp4.getTime())
         );
         assertEquals(HttpStatus.OK, apiEvents.createEventsForAccountId(account.getId(), evenList)
                                              .getStatusCode());
@@ -97,10 +108,10 @@ public class EventApiTests {
         System.out.println(statisticsText);
         System.out.println("====================================================");
         assertNotNull(statisticsText);
-        assertTrue(statisticsText.contains("EventType-1, 2"));
-        assertTrue(statisticsText.contains("EventType-2, 2"));
-        assertTrue(statisticsText.contains("EventType-3, 1"));
-        assertTrue(statisticsText.contains("EventType-4, 1"));
+        assertTrue(statisticsText.contains("2021-02-17, EventType-1, 2"));
+        assertTrue(statisticsText.contains("2021-02-17, EventType-2, 2"));
+        assertTrue(statisticsText.contains("2021-02-18, EventType-3, 1"));
+        assertTrue(statisticsText.contains("2021-02-18, EventType-4, 1"));
     }
 
     @Test
@@ -132,27 +143,26 @@ public class EventApiTests {
 
     @Test
     public void createEventsForAccountName() {
-        {
-            Account account = apiAccounts.addAccount(new Account().name("EventsTest-Account-4"))
-                                         .getBody();
-            //when
-            List<Event> evenList = Arrays.asList(
-                    new Event().type("EventType-1")
-                               .timestamp(System.currentTimeMillis()),
-                    new Event().type("EventType-2")
-                               .timestamp(System.currentTimeMillis())
-            );
-            ResponseEntity<Void> createEventsResponse = apiEvents.createEventsForAccountName(account.getName(), evenList);
 
-            // then
-            assertEquals(HttpStatus.OK, createEventsResponse.getStatusCode());
-            ResponseEntity<String> statisticsResponse = apiStatistics.getStatistics(account.getName());
-            String statisticsText = statisticsResponse.getBody();
-            System.out.println("====================================================");
-            System.out.println(statisticsText);
-            System.out.println("====================================================");
-            assertTrue(statisticsText.contains("EventType-1, 1"));
-            assertTrue(statisticsText.contains("EventType-2, 1"));
-        }
+        Account account = apiAccounts.addAccount(new Account().name("EventsTest-Account-4"))
+                                     .getBody();
+        //when
+        List<Event> evenList = Arrays.asList(
+                new Event().type("EventType-1")
+                           .timestamp(System.currentTimeMillis()),
+                new Event().type("EventType-2")
+                           .timestamp(System.currentTimeMillis())
+        );
+        ResponseEntity<Void> createEventsResponse = apiEvents.createEventsForAccountName(account.getName(), evenList);
+
+        // then
+        assertEquals(HttpStatus.OK, createEventsResponse.getStatusCode());
+        ResponseEntity<String> statisticsResponse = apiStatistics.getStatistics(account.getName());
+        String statisticsText = statisticsResponse.getBody();
+        System.out.println("====================================================");
+        System.out.println(statisticsText);
+        System.out.println("====================================================");
+        assertTrue(statisticsText.contains("EventType-1, 1"));
+        assertTrue(statisticsText.contains("EventType-2, 1"));
     }
 }

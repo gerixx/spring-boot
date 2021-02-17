@@ -1,10 +1,12 @@
 package com.smec.cc.accountsmanagement.api;
 
-import com.smec.cc.accountsmanagement.db.entity.*;
-import com.smec.cc.accountsmanagement.model.Account;
+import com.smec.cc.accountsmanagement.DateTimeUtil;
+import com.smec.cc.accountsmanagement.db.entity.AccountEntity;
+import com.smec.cc.accountsmanagement.db.entity.AccountEntityRepository;
+import com.smec.cc.accountsmanagement.db.entity.EventRaisedEntity;
+import com.smec.cc.accountsmanagement.db.entity.EventStatisticsEntity;
 import com.smec.cc.accountsmanagement.model.Event;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,10 @@ import org.springframework.web.context.request.NativeWebRequest;
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class EventApiDelegateImpl implements EventApiDelegate {
@@ -54,11 +56,12 @@ public class EventApiDelegateImpl implements EventApiDelegate {
                 AccountEntity accountEntity = accountByIdOpt.get();
                 for (Event event : eventList) {
                     EventRaisedEntity eventRaisedProbe = new EventRaisedEntity(event.getType(), event.getTimestamp());
-                    EventStatisticsEntity eventStatisticsEntry = getStatisticsEntry(accountId, event.getType(), 123L);
+                    EventStatisticsEntity eventStatisticsEntry = getStatisticsEntry(accountId, event.getType(),
+                            DateTimeUtil.toDayBeginUTC(event.getTimestamp()));
 
                     if (eventStatisticsEntry.getId() == null) { // no statistics entry found yet
                         EventStatisticsEntity eventStatisticsProbe =
-                                new EventStatisticsEntity(event.getType(), 123L, 1L); // TODO event.getTimestamp());
+                                new EventStatisticsEntity(event.getType(), DateTimeUtil.toDayBeginUTC(event.getTimestamp()), 1L);
                         accountEntity.addEventStatistics(eventStatisticsProbe);
                     } else {
                         eventStatisticsEntry.incrementCount(1L);

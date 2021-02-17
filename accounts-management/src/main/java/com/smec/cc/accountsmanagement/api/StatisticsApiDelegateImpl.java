@@ -1,5 +1,6 @@
 package com.smec.cc.accountsmanagement.api;
 
+import com.smec.cc.accountsmanagement.DateTimeUtil;
 import com.smec.cc.accountsmanagement.db.entity.AccountEntity;
 import com.smec.cc.accountsmanagement.db.entity.AccountEntityRepository;
 import com.smec.cc.accountsmanagement.db.entity.EventStatisticsEntity;
@@ -45,7 +46,7 @@ public class StatisticsApiDelegateImpl implements StatisticsApiDelegate {
                 if (eventStatistics != null && !eventStatistics.isEmpty()) {
                     for (EventStatisticsEntity eventStatistic : eventStatistics) {
                         resultBody.append('\n')
-                                  .append(eventStatistic.getDay())
+                                  .append(DateTimeUtil.toDayAsStringUTC(eventStatistic.getDay()))
                                   .append(", ")
                                   .append(eventStatistic.getType())
                                   .append(", ")
