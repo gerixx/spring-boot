@@ -94,11 +94,13 @@ public class EventApiTests {
                                              .getStatusCode());
 
         // when
+        Date timeStamp5 = DateTimeUtil.parseDateFrom("2021-02-17T16:51:15.022+0000");
+        Date timeStamp6 = DateTimeUtil.parseDateFrom("2021-02-17T16:56:15.099+0000");
         evenList = Arrays.asList(
                 new Event().type("EventType-1")
-                           .timestamp(System.currentTimeMillis()),
+                           .timestamp(timeStamp5.getTime()),
                 new Event().type("EventType-2")
-                           .timestamp(System.currentTimeMillis())
+                           .timestamp(timeStamp6.getTime())
         );
 
         // then
