@@ -9,6 +9,9 @@ account-events that can be raised.
 - Maven Wrapper 3.6.3
 - Delegate implementations see package "com.smec.cc.accountsmanagement.api"
 
+Test API Endpoint:
+> http://localhost:8080/v1
+
 Build:
 > mvnw clean install 
 
@@ -19,8 +22,7 @@ or
 
 >java -jar target/accounts-management-0.0.1-SNAPSHOT.jar
 
-
-Test:
+Run single test, for example:
 > mvnw -Dtest=AccountsManagementApplicationTests test
 
 http://localhost:8080/v1/account

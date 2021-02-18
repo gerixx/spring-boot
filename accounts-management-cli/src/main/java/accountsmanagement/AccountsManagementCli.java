@@ -1,5 +1,9 @@
 package accountsmanagement;
 
+import accountsmanagement.cli.commands.AddAccounts;
+import accountsmanagement.cli.commands.RaiseEvents;
+import accountsmanagement.cli.commands.Statistics;
+import accountsmanagement.cli.commands.UpdateAccount;
 import com.smec.cc.accountsmanagement.ApiException;
 import picocli.CommandLine;
 
@@ -12,39 +16,26 @@ public class AccountsManagementCli implements Callable<Integer> {
     @CommandLine.Spec
     CommandLine.Model.CommandSpec spec;
 
+    @CommandLine.Option(names = {"-endpoint"}, required = true, description = "Account API endpoint")
+    private String apiEndpointUrl = "";
+
     @Override
     public Integer call() throws Exception {
-        throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");    }
+        if (! apiEndpointUrl.isEmpty()) {
+            Api.getInstance().setBasePath(apiEndpointUrl); // http://localhost:8080/v1
+            return 0;
+        } else {
+            throw new CommandLine.ParameterException(spec.commandLine(), "Missing required subcommand");
+        }
+    }
 
     public static void main(String[] args) throws ApiException {
         CommandLine commandLine = new CommandLine(new AccountsManagementCli());
-        commandLine.addSubcommand(new Add());
+        commandLine.addSubcommand(new AddAccounts());
         commandLine.addSubcommand(new RaiseEvents());
         commandLine.addSubcommand(new Statistics());
         commandLine.addSubcommand(new UpdateAccount());
         System.exit(commandLine.execute(args));
-
-//        ApiClient apiClient = new ApiClient().setBasePath("http://localhost:8080/v1");
-//        AccountApi accountApi = new AccountApi(apiClient);
-//        EventApi eventApi = new EventApi(apiClient);
-//        StatisticsApi statisticsApi = new StatisticsApi(apiClient);
-//
-//        try {
-//            Account account = accountApi.addAccount(new Account().name("Account-1"));
-//            eventApi.createEventsForAccountId(account.getId(),
-//                    Arrays.asList(
-//                            new Event().type("Event-1")
-//                                       .timestamp(System.currentTimeMillis()),
-//                            new Event().type("Event-2")
-//                                       .timestamp(System.currentTimeMillis()),
-//                            new Event().type("Event-3")
-//                                       .timestamp(System.currentTimeMillis())
-//                    ));
-//            String statistics = statisticsApi.getStatistics(account.getName());
-//            System.out.println(statistics);
-//        } catch (ApiException e) {
-//            e.printStackTrace();
-//        }
     }
 
 }
