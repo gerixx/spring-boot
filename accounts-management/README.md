@@ -15,6 +15,11 @@ Build:
 Start:
 > mvnw spring-boot:run
 
+or
+
+>java -jar target/accounts-management-0.0.1-SNAPSHOT.jar
+
+
 Test:
 > mvnw -Dtest=AccountsManagementApplicationTests test
 

@@ -1,4 +1,4 @@
 Spring Boot Example
 -------------------
 
-API-first REST implementation using Spring Boot and Maven Wrapper.
+API-first REST implementation using Spring Boot, OpenApi 3 and Maven Wrapper.
